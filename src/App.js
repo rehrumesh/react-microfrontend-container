@@ -1,16 +1,41 @@
 import React, { useState } from "react";
-import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { createBrowserHistory } from "history";
+import MicroFrontend from "./MicroFrontend";
 
 import "./App.css";
 
 const defaultHistory = createBrowserHistory();
 
+const {
+  REACT_APP_DOGS_HOST: dogsHost,
+  REACT_APP_CATS_HOST: catsHost,
+} = process.env;
+
 function Header() {
   return (
-    <div class="banner">
-      <h1 class="banner-title">&#128571; Cats and Dogs &#128021;</h1>
+    <div className="banner">
+      <h1 className="banner-title">&#128571; Cats and Dogs &#128021;</h1>
       <h4>Random pics of cats and dogs</h4>
+    </div>
+  );
+}
+
+function Dogs({ history }) {
+  return <MicroFrontend history={history} host={dogsHost} name="Dogs" />;
+}
+
+function Cats({ history }) {
+  return <MicroFrontend history={history} host={catsHost} name="Cats" />;
+}
+
+function GreetingCat({ history }) {
+  return (
+    <div>
+      <Header />
+      <div className="home">
+        <MicroFrontend history={history} host={catsHost} name="Cats" />
+      </div>
     </div>
   );
 }
@@ -25,25 +50,22 @@ function Home({ history }) {
   return (
     <div>
       <Header />
-      <div class="home">
+      <div className="home">
         <input
           placeholder="Insert a greeting"
-          value={input}
-          onInput={(e) => setInput(e.target.value)}
+          defaultValue={input}
+          onBlur={(e) => setInput(e.target.value)}
         />
         <button onClick={handleOnClick}>Greet Me</button>
       </div>
 
-      <div class="home">
-        <div class="content">
-          <div class="cat">
-            <img width="400px" src="https://cataas.com/cat/says/hello" />
+      <div className="home">
+        <div className="content">
+          <div className="cat">
+            <Cats />
           </div>
-          <div class="dog">
-            <img
-              width="400px"
-              src="https://random.dog/91474781-c254-4397-b658-d19b7f0a4f5b.jpeg"
-            />
+          <div className="dog">
+            <Dogs />
           </div>
         </div>
       </div>
@@ -51,12 +73,13 @@ function Home({ history }) {
   );
 }
 
-function App({ history = defaultHistory }) {
+function App() {
   return (
     <BrowserRouter>
       <React.Fragment>
         <Switch>
-          <Route exact path="/" render={() => <Home history={history} />} />
+          <Route exact path="/" component={Home} />
+          <Route exact path="/cat/:greeting" component={GreetingCat} />
         </Switch>
       </React.Fragment>
     </BrowserRouter>
